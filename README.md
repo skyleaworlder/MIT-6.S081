@@ -1,4 +1,27 @@
-xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
+# Utils
+
+## Boot
+
+After following instructions in [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain) and [tools](https://pdos.csail.mit.edu/6.828/2021/tools.html) (ensure that `qemu-system-riscv64` exists), execute command:
+
+```shell
+> make qemu
+```
+
+![Boot](./figure/boot.jpg)
+
+## Sleep
+
+![Sleep](./figure/sleep.jpg)
+
+* input validate;
+* use sleep syscall directly like user/kill.c;
+* atoi would return 0 if input is a string.
+
+## Original README
+
+```text
+xv6 is a reimplementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
 
@@ -45,3 +68,4 @@ You will need a RISC-V "newlib" tool chain from
 https://github.com/riscv/riscv-gnu-toolchain, and qemu compiled for
 riscv64-softmmu. Once they are installed, and in your shell
 search path, you can run "make qemu".
+```
