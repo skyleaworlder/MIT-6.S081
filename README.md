@@ -25,6 +25,12 @@ After following instructions in [riscv-gnu-toolchain](https://github.com/riscv-c
 * pipe(int*) need an array with 2 elements (int[2]), the first is to read and the other is to write.
 * write(w_end_pipe, content, size), then content'll be available elsewhere by calling read(r_end_pipe, content, size). (w_end_pipe and r_end_pipe should be generated together by pipe(int*))
 
+## Find
+
+![Find](./figure/find.png)
+
+* recurse after checking "." and ".."
+
 ## Original README
 
 ```text
