@@ -97,7 +97,7 @@ find(char* src_path, char* file_name)
         if (strcmp(de.name, file_name) != 0) { // files not satisfied
           continue;
         }
-        printf("%s %d %d %d\n", fmtname(buf), st.type, st.ino, st.size);
+        printf("%s\n", buf);
         break;
       }
     }

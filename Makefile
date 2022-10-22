@@ -196,6 +196,7 @@ UPROGS=\
 	$U/_usertests\
 	$U/_grind\
 	$U/_wc\
+	$U/_xargs\
 	$U/_zombie\
 
 
@@ -261,6 +262,7 @@ endif
 UEXTRA=
 ifeq ($(LAB),util)
 	UEXTRA += user/xargstest.sh
+	UEXTRA += user/prepare.sh
 endif
 
 

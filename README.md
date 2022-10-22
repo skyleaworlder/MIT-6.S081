@@ -31,6 +31,12 @@ After following instructions in [riscv-gnu-toolchain](https://github.com/riscv-c
 
 * recurse after checking "." and ".."
 
+## Xargs
+
+![Xargs](./figure/xargs.png)
+
+* exec function also need to pass "command" (it calls relating main function)
+
 ## Original README
 
 ```text
