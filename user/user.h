@@ -1,4 +1,5 @@
 struct stat;
+struct sysinfo;
 struct rtcdate;
 
 // system calls
@@ -24,6 +25,7 @@ int link(const char*, const char*);
 int mkdir(const char*);
 int close(int);
 int trace(int);
+int sysinfo(struct sysinfo*);
 
 // ulib.c
 int stat(const char*, struct stat*);

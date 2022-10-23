@@ -11,6 +11,7 @@
 #include "sleeplock.h"
 #include "file.h"
 #include "stat.h"
+#include "sysinfo.h"
 #include "proc.h"
 
 struct devsw devsw[NDEV];
@@ -180,3 +181,17 @@ filewrite(struct file *f, uint64 addr, int n)
   return ret;
 }
 
+// copy sys_info to addr
+int
+filesysinfo(uint64 addr)
+{
+  struct sysinfo sys_info;
+  struct proc* p = myproc();
+
+  sys_info.nproc = nproc();
+  sys_info.freemem = get_freemem();
+  if (copyout(p->pagetable, addr, (char*)(&sys_info), sizeof(sys_info)) < 0) {
+    return -1;
+  }
+  return 0;
+}

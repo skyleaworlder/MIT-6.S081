@@ -484,3 +484,14 @@ sys_pipe(void)
   }
   return 0;
 }
+
+// fill sysinfo
+uint64
+sys_sysinfo(void)
+{
+  uint64 info;
+  if (argaddr(0, &info) < 0) {
+    return -1;
+  }
+  return filesysinfo(info);
+}
