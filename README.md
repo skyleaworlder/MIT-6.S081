@@ -1,3 +1,12 @@
+# Syscall
+
+## System call tracing
+
+![tracing](./figure/tracing.png)
+
+* remember to add `$U/_trace\` to Makefile. (xv6 print "exec trace failed" again and again, and I debug very hard and into very deep call layer. function namei() return -1 and don't goto "bad" label to process error)
+* add trace_mask as proc's property directly. fork doesn't copy all the properties to new process, it need to assign it to a new one manually
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
