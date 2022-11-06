@@ -11,7 +11,7 @@ int
 main(int argc, char *argv[])
 {
   ugetpid_test();
-  //pgaccess_test();
+  pgaccess_test();
   printf("pgtbltest: all tests succeeded\n");
   exit(0);
 }

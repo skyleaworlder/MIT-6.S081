@@ -3,6 +3,8 @@
 #include "memlayout.h"
 #include "elf.h"
 #include "riscv.h"
+#include "spinlock.h"
+#include "proc.h"
 #include "defs.h"
 #include "fs.h"
 
@@ -459,6 +461,36 @@ vmprint(pagetable_t pagetable)
         }
       }
     }
+  }
+  return 0;
+}
+
+// syscall pgaccess
+int
+pgaccess(uint64 va, int pg_num, uint64 ua_buf)
+{
+  pte_t* pte;
+  struct proc* curr_proc = myproc();
+  pagetable_t pagetable = curr_proc->pagetable;
+
+  if ((pte = walk(pagetable, va, 0)) == 0) {
+    printf("va (%d/%p) hasn't been allocated, not valid\n", va, va);
+    return -1;
+  }
+
+  uint64 tmp_buf = 0;
+  for (int i = 0; i < pg_num && i < MAX_PAGE_NUM; i++) {
+    if (PTE_A & *pte) {
+      tmp_buf |= (1L << i);
+      *pte &= PTE_A_REV;
+    }
+    pte++;
+  }
+  
+  int out_success;
+  if ((out_success = copyout(pagetable, ua_buf, (char*)&tmp_buf, MAX_PAGE_NUM / 8)) < 0) {
+    printf("copyout failed.\n");
+    return -1;
   }
   return 0;
 }

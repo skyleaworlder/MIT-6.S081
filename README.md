@@ -18,6 +18,13 @@ xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
 
+## Detecting which pages have been accessed
+
+![3-3](./figures/3-3.png)
+
+* lab is not difficult.
+* but I spent more than one hour debugging due to misusing "argaddr" and "argint".
+
 ACKNOWLEDGMENTS
 
 xv6 is inspired by John Lions's Commentary on UNIX 6th Edition (Peer
