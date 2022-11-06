@@ -30,6 +30,8 @@ kvmmake(void)
   // virtio mmio disk interface
   kvmmap(kpgtbl, VIRTIO0, VIRTIO0, PGSIZE, PTE_R | PTE_W);
 
+  vmprint(kpgtbl);
+
   // PLIC
   kvmmap(kpgtbl, PLIC, PLIC, 0x400000, PTE_R | PTE_W);
 
@@ -431,4 +433,32 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
   } else {
     return -1;
   }
+}
+
+int
+vmprint(pagetable_t pagetable)
+{
+  int num = 512;
+  for (int i = 0; i < num; i++) {
+    pte_t* pte_l2 = &pagetable[i];
+    // if layer 2 pte valid
+    if (PTE_V & *pte_l2) {
+      printf(".. %d: pte %p pa %p\n", i, *pte_l2, PTE2PA(*pte_l2));
+      pagetable_t l2_pagetable = (pagetable_t)PTE2PA(*pte_l2);
+      for (int j = 0; j < num; j++) {
+        pte_t* pte_l1 = &l2_pagetable[j];
+        if (PTE_V & *pte_l1) {
+          printf(".. ..%d: pte %p pa %p\n", j, *pte_l1, PTE2PA(*pte_l1));
+          pagetable_t l1_pagetable = (pagetable_t)PTE2PA(*pte_l1);
+          for (int k = 0; k < num; k++) {
+            pte_t* pte_l0 = &l1_pagetable[k];
+            if (PTE_V & *pte_l0) {
+              printf(".. .. ..%d: pte %p pa %p\n", k, *pte_l0, PTE2PA(*pte_l0));
+            }
+          }
+        }
+      }
+    }
+  }
+  return 0;
 }

@@ -8,6 +8,12 @@
 * "ctrl-shift-f TRAMPFRAME" is helpful.
 * once kalloc => kfree; once mappage => uvmunmap (proc_pagetable => proc_freepagetable).
 
+## Print a page table
+
+![3-2](./figures/3-2.png)
+
+Nothing to worry about.
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
