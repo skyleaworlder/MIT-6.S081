@@ -82,10 +82,10 @@ usertrap(void)
   if(which_dev == 2) {
     if (p->alarm_interval) {
       p->alarm_cnt++;
-      if (p->alarm_cnt >= p->alarm_interval) {
+      // only equal invoke callback function (namely, memmove trapframe)
+      if (p->alarm_cnt == p->alarm_interval) {
         memmove(alarm_trapframe, p->trapframe, sizeof(struct trapframe));
         p->trapframe->epc = p->alarm_callback;
-        p->alarm_cnt = 0;
       }
     }
 

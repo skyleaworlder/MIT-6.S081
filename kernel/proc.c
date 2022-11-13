@@ -670,5 +670,9 @@ sigalarm(int interval, uint64 handler)
 int
 sigreturn(void)
 {
+  struct proc* p = myproc();
+  memmove(p->trapframe, alarm_trapframe, sizeof(struct trapframe));
+  p->alarm_callback = 0;
+  p->alarm_cnt = 0;
   return 0;
 }

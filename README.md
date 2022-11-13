@@ -10,8 +10,16 @@
 
 ### 1. test0: invoke handler
 
+![4-3-1](./figure/4-3-1.png)
+
 * `periodic` address is 0x00000000! I couldn't image a function own 0x00000000 as its address before.
 * memmove need dst array initialized.
+
+### 2. test1/test2: resume interrupted code
+
+![4-3-2](./figure/4-3-2.png)
+
+* p->alarm_cnt must == p->alarm_interval
 
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
