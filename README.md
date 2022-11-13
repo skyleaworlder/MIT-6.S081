@@ -6,6 +6,13 @@
 
 ![4-2](./figure/4-2.png)
 
+## 3. Alarm
+
+### 1. test0: invoke handler
+
+* `periodic` address is 0x00000000! I couldn't image a function own 0x00000000 as its address before.
+* memmove need dst array initialized.
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.

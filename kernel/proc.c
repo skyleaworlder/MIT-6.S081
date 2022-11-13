@@ -20,6 +20,8 @@ static void freeproc(struct proc *p);
 
 extern char trampoline[]; // trampoline.S
 
+char alarm_trapframe[sizeof(struct trapframe)];
+
 // helps ensure that wakeups of wait()ing
 // parents are not lost. helps obey the
 // memory model when using p->parent.
@@ -653,4 +655,20 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+int
+sigalarm(int interval, uint64 handler)
+{
+  struct proc* p = myproc();
+  p->alarm_interval = interval;
+  p->alarm_callback = handler;
+  p->alarm_cnt = 0;
+  return 0;
+}
+
+int
+sigreturn(void)
+{
+  return 0;
 }
