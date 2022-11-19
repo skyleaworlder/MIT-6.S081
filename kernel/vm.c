@@ -15,6 +15,8 @@ extern char etext[];  // kernel.ld sets this to end of kernel code.
 
 extern char trampoline[]; // trampoline.S
 
+extern int ref_count_tbl[PGNUM];
+
 // Make a direct-map page table for the kernel.
 pagetable_t
 kvmmake(void)
@@ -303,27 +305,80 @@ uvmcopy(pagetable_t old, pagetable_t new, uint64 sz)
   pte_t *pte;
   uint64 pa, i;
   uint flags;
-  char *mem;
 
   for(i = 0; i < sz; i += PGSIZE){
     if((pte = walk(old, i, 0)) == 0)
       panic("uvmcopy: pte should exist");
     if((*pte & PTE_V) == 0)
       panic("uvmcopy: page not present");
+
     pa = PTE2PA(*pte);
+
+    // clear Writable bit & set COW bit
+    *pte &= ~PTE_W;
+    *pte &= PTE_COW;
     flags = PTE_FLAGS(*pte);
-    if((mem = kalloc()) == 0)
-      goto err;
-    memmove(mem, (char*)pa, PGSIZE);
-    if(mappages(new, i, PGSIZE, (uint64)mem, flags) != 0){
-      kfree(mem);
+    if (mappages(new, i, PGSIZE, pa, flags) != 0) {
       goto err;
     }
+
+    // add ref count here
+    int index = PGIDX(pa);
+    ref_count_tbl[index] += 1;
   }
   return 0;
 
  err:
   uvmunmap(new, 0, i / PGSIZE, 1);
+  return -1;
+}
+
+// only copy to a new page
+int
+copy_on_write(pagetable_t pagetable, uint64 va)
+{
+  pte_t* pte;
+  uint64 pa; // old pa, which ref count >= 2 now
+  char* new_page_pa;
+  uint new_flags;
+
+  if ((pte = walk(pagetable, va, 0)) == 0) {
+    printf("copy_on_write: pte should exist\n");
+    return -1;
+  }
+  if ((*pte & PTE_V) == 0) {
+    printf("copy_on_write: page not present\n");
+    return -1;
+  } 
+  if ((*pte & PTE_COW) == 0) {
+    printf("copy_on_write: page should be COW page\n");
+    return -1;
+  }
+
+  pa = PTE2PA(*pte);
+  if ((new_page_pa = kalloc()) == 0) {
+    // memory exhausted
+    return -1;
+  }
+
+  memmove(new_page_pa, (void*)pa, PGSIZE);
+  new_flags = PTE_FLAGS(*pte);
+  new_flags &= PTE_W; // new page is writable
+  new_flags &= ~PTE_COW; // clear POW bit for a new page anyway
+  if (mappages(pagetable, va, PGSIZE, (uint64)new_page_pa, new_flags) != 0) {
+    kfree((void*)pa);
+    goto err;
+  }
+
+  int index = PGIDX(pa);
+  if (ref_count_tbl[index] == 1) {
+    // if and only if page's ref count == 1, set PTE_W
+    *pte &= PTE_W;
+  }
+  return 0;
+
+ err:
+  uvmunmap(pagetable, 0, va / PGSIZE, 1);
   return -1;
 }
 
@@ -353,6 +408,18 @@ copyout(pagetable_t pagetable, uint64 dstva, char *src, uint64 len)
     pa0 = walkaddr(pagetable, va0);
     if(pa0 == 0)
       return -1;
+
+    pte_t* pte = walk(pagetable, va0, 0);
+    if (pte == 0) {
+      return -1;
+    }
+    if ((*pte & PTE_W) == 0) {
+      if (copy_on_write(pagetable, va0) < 0) {
+        return -1;
+      }
+    }
+    pa0 = PTE2PA(*pte);
+
     n = PGSIZE - (dstva - va0);
     if(n > len)
       n = len;
