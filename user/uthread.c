@@ -1,6 +1,10 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
+#include "kernel/riscv.h"
+#include "kernel/spinlock.h"
+#include "kernel/param.h"
+#include "kernel/proc.h"
 
 /* Possible states of a thread: */
 #define FREE        0x0
@@ -14,6 +18,7 @@
 struct thread {
   char       stack[STACK_SIZE]; /* the thread's stack */
   int        state;             /* FREE, RUNNING, RUNNABLE */
+  struct context context;       /* thread context */
 };
 struct thread all_thread[MAX_THREAD];
 struct thread *current_thread;
@@ -62,6 +67,9 @@ thread_schedule(void)
      * Invoke thread_switch to switch from t to next_thread:
      * thread_switch(??, ??);
      */
+    //printf("t->context: %x, %x\n", &t->context.ra, &t->context.sp);
+    //printf("current_thread->context: %x, %x\n", &current_thread->context.ra, &current_thread->context.sp);
+    thread_switch((uint64)&t->context, (uint64)&current_thread->context);
   } else
     next_thread = 0;
 }
@@ -76,6 +84,33 @@ thread_create(void (*func)())
   }
   t->state = RUNNABLE;
   // YOUR CODE HERE
+  /**
+   * +----------------+
+   * |   trampoline   |
+   * |    trapframe   |
+   * |----------------|
+   * |      heap      |
+   * |----------------|
+   * | (stack bottom) |
+   * |   user stack   |
+   * |                |
+   * |                |
+   * |                |
+   * |  (stack top)   |
+   * |----------------|
+   * |     data       |
+   * |      or        |
+   * |     text       |
+   * +----------------+
+  */
+  t->context.ra = (uint64)func;
+  // so t->context.sp = t->stack + STACK_SIZE, just make sp point to stack bottom
+  // and thread_switch store&load regs value from "heap" space
+  // even though that piece of "heap" space has never been initialized
+  // (just find a place to store values)
+  // t->context.sp make stack only grow from top addr to low addr,
+  // and this will never distory regs value in "heap".
+  t->context.sp = (uint64)(t->stack) + STACK_SIZE;
 }
 
 void 
