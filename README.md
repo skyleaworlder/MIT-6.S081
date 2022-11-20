@@ -2,9 +2,17 @@
 
 ## 1. Uthread: switching between threads
 
+![6-1](figure/6.1.png)
+
 * need include more header files from kernel.
 * it's important to have a good understanding of process sections and stack growth direction.
 * there is a lot of empty space, which can be used to allocate for old thread's registers.
+
+## 2. Using threads
+
+![6-2](figure/6.2.png)
+
+* nothing to say
 
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,

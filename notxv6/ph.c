@@ -17,6 +17,7 @@ struct entry *table[NBUCKET];
 int keys[NKEYS];
 int nthread = 1;
 
+pthread_mutex_t p_mutex;
 
 double
 now()
@@ -78,7 +79,9 @@ put_thread(void *xa)
   int b = NKEYS/nthread;
 
   for (int i = 0; i < b; i++) {
+    pthread_mutex_lock(&p_mutex);
     put(keys[b*n + i], n);
+    pthread_mutex_unlock(&p_mutex);
   }
 
   return NULL;
