@@ -44,6 +44,8 @@ binit(void)
   bcache.head.prev = &bcache.head;
   bcache.head.next = &bcache.head;
   for(b = bcache.buf; b < bcache.buf+NBUF; b++){
+    // for the first time, the following code make 2 buf connect each other.
+    // then, in fact, insert a new buf between head buf and the very next buf of head buf.
     b->next = bcache.head.next;
     b->prev = &bcache.head;
     initsleeplock(&b->lock, "buffer");

@@ -1,3 +1,12 @@
+# Locks
+
+## 1. Memory allocator
+
+![7-1](figure/7-1.png)
+
+* use if-else to accelerate.
+* "CPU must 'steal' part of the other CPU's free list" is not hard to implement, just a for-loop.
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
