@@ -7,6 +7,14 @@
 * use if-else to accelerate.
 * "CPU must 'steal' part of the other CPU's free list" is not hard to implement, just a for-loop.
 
+## 2. Buffer cache
+
+![7-2](figure/7-2.png)
+
+* fuck, I spend 2 hours on this.
+* I initialize buf list simply attaching all of buf on buckets[0]. Then, the same as 7.1, once buf is not enough, I steal buf from other buf list.
+* Need to have a good understanding of buckets and their corresponding bucket locks
+
 xv6 is a re-implementation of Dennis Ritchie's and Ken Thompson's Unix
 Version 6 (v6).  xv6 loosely follows the structure and style of v6,
 but is implemented for a modern RISC-V multiprocessor using ANSI C.
