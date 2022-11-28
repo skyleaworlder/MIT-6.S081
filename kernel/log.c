@@ -65,6 +65,7 @@ initlog(int dev, struct superblock *sb)
 }
 
 // Copy committed blocks from log to their home location
+// log (src) -> data (dst)
 static void
 install_trans(int recovering)
 {
@@ -109,7 +110,7 @@ write_head(void)
   for (i = 0; i < log.lh.n; i++) {
     hb->block[i] = log.lh.block[i];
   }
-  bwrite(buf);
+  bwrite(buf); // real commit point
   brelse(buf);
 }
 
