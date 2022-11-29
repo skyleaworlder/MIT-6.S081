@@ -25,6 +25,7 @@ struct inode {
   short major;
   short minor;
   short nlink;
+  char symlink_target[MAXPATH];
   uint size;
   uint addrs[NDIRECT+1];
 };

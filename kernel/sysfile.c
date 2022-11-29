@@ -4,6 +4,8 @@
 // user code, and calls into file.c and fs.c.
 //
 
+#define MAX_DEPTH 10
+
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"
@@ -297,6 +299,7 @@ sys_open(void)
 
   begin_op();
 
+  //printf("path: %s\n", path);
   if(omode & O_CREATE){
     ip = create(path, T_FILE, 0, 0);
     if(ip == 0){
@@ -304,11 +307,29 @@ sys_open(void)
       return -1;
     }
   } else {
-    if((ip = namei(path)) == 0){
-      end_op();
-      return -1;
+    int count = 0;
+    while (1) {
+      if((ip = namei(path)) == 0){
+        end_op();
+        return -1;
+      }
+      //printf("?\n");
+      ilock(ip);
+      //printf("!\n");
+      if (ip->type != T_SYMLINK || (omode & O_NOFOLLOW)) {
+        break;
+      }
+      // more than 10, might be symlink cycle
+      if (count > MAX_DEPTH) {
+        iunlockput(ip);
+        end_op();
+        return -1;
+      }
+      memmove(path, ip->symlink_target, MAXPATH);
+      count++;
+      iunlockput(ip);
     }
-    ilock(ip);
+
     if(ip->type == T_DIR && omode != O_RDONLY){
       iunlockput(ip);
       end_op();
@@ -482,5 +503,31 @@ sys_pipe(void)
     fileclose(wf);
     return -1;
   }
+  return 0;
+}
+
+uint64
+sys_symlink(void)
+{
+  char target[MAXPATH];
+  char path[MAXPATH];
+  if (argstr(0, target, MAXPATH) < 0 || argstr(1, path, MAXPATH) < 0) {
+    return -1;
+  }
+
+  struct inode* ip;
+  begin_op();
+
+  //printf("create path: %s\n", path);
+  ip = create(path, T_SYMLINK, 0, 0);
+  if (ip == 0) {
+    end_op();
+    return -1;
+  }
+  memmove(ip->symlink_target, target, MAXPATH);
+  //printf("symlink: %s -> %s\n", path, ip->symlink_target);
+
+  iunlockput(ip);
+  end_op();
   return 0;
 }
